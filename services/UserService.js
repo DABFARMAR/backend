@@ -129,7 +129,7 @@ const getUsersByFilters = async (req) => {
 	
     };
     if(req.query.name){
-	filtersMain.name = { [Op.like]: `%${req.query.occurrence}%` };
+	filtersMain.name = { [Op.like]: `%${req.query.name}%` };
     };
 
     if(req.query.login_after_date && req.query.login_before_date){
