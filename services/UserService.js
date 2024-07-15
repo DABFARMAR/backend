@@ -124,29 +124,29 @@ const getUsersByFilters = async (req) => {
     const filtersSession = {};
     let relationRequired = true;
     
-    if(req.query.status){ //params -> req.query
-	filtersMain.status = Boolean(req.query.status);
+    if(req.query.active){ //params -> req.query
+	filtersMain.status = Boolean(req.query.active);
 	
     };
-    if(req.query.occurrence){
+    if(req.query.name){
 	filtersMain.name = { [Op.like]: `%${req.query.occurrence}%` };
     };
 
-    if(req.query.from && req.query.to){
+    if(req.query.login_after_date && req.query.login_before_date){
 
-	const from = new Date(req.query.from);
-	const to = new Date(req.query.to);
-	filtersSession.CreatedAt = { [Op.between] : [from, to]  }
+	const after = new Date(req.query.login_after_date);
+	const before = new Date(req.query.login_before_date);
+	filtersSession.CreatedAt = { [Op.between] : [after, before]  }
 	
-    } else if(req.query.from){
+    } else if(req.query.login_after_date){
 	
-	const from = new Date(req.query.from);
-	filtersSession.CreatedAt = { [Op.gt] : from  }
+	const after = new Date(req.query.login_after_date);
+	filtersSession.CreatedAt = { [Op.gt] : after  }
 	
-    } else if(req.query.to){
+    } else if(req.query.login_before_date){
 	
-	const to = new Date(req.query.to);
-	filtersSession.CreatedAt = { [Op.lt] : to }
+	const before = new Date(req.query.login_before_date);
+	filtersSession.CreatedAt = { [Op.lt] : before }
 	
     } else {
 	relationRequired = false; 
