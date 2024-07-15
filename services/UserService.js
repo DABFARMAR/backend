@@ -129,7 +129,7 @@ const getUsersByFilters = async (req) => {
 	
     };
     if(req.query.occurrence){
-	filtersMain.name = { [Op.like]: req.query.occurrence };
+	filtersMain.name = { [Op.like]: `%${req.query.occurrence}%` };
     };
 
     if(req.query.from && req.query.to){
@@ -182,7 +182,6 @@ const bulkCreate = async (usersToCreate) => { //[{},{},{}]
 
    
 }
-
 
 
 export default {
