@@ -1,14 +1,15 @@
 import db from '../dist/db/models/index.js';
 import bcrypt from 'bcrypt';
+import { Op } from 'sequelize';
 
-const createUser = async (req) => {
+const createUser = async (usersToCreate) => {
     const {
         name,
         email,
         password,
         password_second,
         cellphone
-    } = req.body;
+    } = usersToCreate;
     if (password !== password_second) {
         return {
             code: 400,
@@ -102,9 +103,94 @@ const deleteUser = async (id) => {
     };
 }
 
+
+
+
+const getAllUsers = async () => {
+    return {
+	code : 200,
+	message : await db.User.findAll({ //select * from Users where status = true	
+	    where : {
+		status : true,	    
+	    }
+	
+	})
+    }
+}
+
+
+const getUsersByFilters = async (req) => {
+    const filtersMain = {};
+    const filtersSession = {};
+    let relationRequired = true;
+    
+    if(req.query.status){
+	filtersMain.status = Boolean(req.query.status);
+	
+    };
+    if(req.query.occurrence){
+	filtersMain.name = { [Op.like]: req.query.occurrence };
+    };
+
+    if(req.query.from && req.query.to){
+
+	const from = new Date(req.query.from);
+	const to = new Date(req.query.to);
+	filtersSession.CreatedAt = { [Op.between] : [from, to]  }
+	
+    } else if(req.query.from){
+	
+	const from = new Date(req.query.from);
+	filtersSession.CreatedAt = { [Op.gt] : from  }
+	
+    } else if(req.query.to){
+	
+	const to = new Date(req.query.to);
+	filtersSession.CreatedAt = { [Op.lt] : to }
+	
+    } else {
+	relationRequired = false; 
+    };
+
+    const response = await db.User.findAll({
+	where : filtersMain,
+	include :[{
+	    model : db.Session,
+	    required : relationRequired,
+	    attributes : ['createdAt'],
+	    where : filtersSession ,
+	}]
+    });
+    
+    return {
+	code : 200,
+	message : response
+    }
+}
+
+
+
+const bulkCreate = async (usersToCreate) => { //[{},{},{}]
+    let usersError = 0;
+    const result = usersToCreate.map(async (user) => {
+	const newUser = await createUser(user);
+	newUser.code === 400 ? usersError++ : null ;
+    });
+
+    await Promise.all(result);
+    return {success : usersToCreate.length - usersError , error : usersError};
+
+   
+}
+
+
+
 export default {
     createUser,
     getUserById,
     updateUser,
     deleteUser,
+    bulkCreate,
+    getUsersByFilters,
+    getAllUsers,
 }
