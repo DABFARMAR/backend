@@ -124,7 +124,7 @@ const getUsersByFilters = async (req) => {
     const filtersSession = {};
     let relationRequired = true;
     
-    if(req.query.status){
+    if(req.query.status){ //params -> req.query
 	filtersMain.status = Boolean(req.query.status);
 	
     };
@@ -153,7 +153,7 @@ const getUsersByFilters = async (req) => {
     };
 
     const response = await db.User.findAll({
-	where : filtersMain,
+	where : filtersMain, 
 	include :[{
 	    model : db.Session,
 	    required : relationRequired,
@@ -180,7 +180,7 @@ const bulkCreate = async (usersToCreate) => { //[{},{},{}]
     await Promise.all(result);
     return {success : usersToCreate.length - usersError , error : usersError};
 
-   
+ 
 }
 
 
